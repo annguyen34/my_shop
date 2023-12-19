@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const Coupon = require("./Coupon");
+const Order = require("./Order");
 
 const invoiceSchema = new mongoose.Schema({
   status: {
