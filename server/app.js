@@ -4,6 +4,7 @@ const cors = require("cors");
 const userRouter = require("./routes/userRoute");
 const productRouter = require("./routes/productRoute");
 const categoryRouter = require("./routes/categoryRoute");
+const cartRouter = require("./routes/cartRoute");
 const errorController = require("./controllers/errorController");
 const AppError = require("./utils/appError");
 

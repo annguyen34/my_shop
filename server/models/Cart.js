@@ -4,13 +4,13 @@ const Product = require("./Product");
 const cartSchema = new mongoose.Schema(
   {
     userId: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
     products: [
       {
         productId: {
-          type: Schema.Types.ObjectId,
+          type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
         },
         quantity: Number,
@@ -35,7 +35,7 @@ const cartSchema = new mongoose.Schema(
   }
 );
 
-orderSchema.pre("save", async function (next) {
+cartSchema.pre("save", async function (next) {
   // Calculate total money
   try {
     let totalMoney = 0;

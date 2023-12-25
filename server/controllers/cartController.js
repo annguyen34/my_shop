@@ -1,5 +1,5 @@
-const Cart = require("../models/cartModel");
-const Product = require("../models/productModel");
+const Cart = require("../models/Cart");
+const Product = require("../models/Product");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 
@@ -21,29 +21,26 @@ const getCartByUID = async (id) => {
 
 exports.addToCart = catchAsync(async (req, res, next) => {
   const { productId } = req.body;
-  const cart = await Cart.findOne({ userId: req.user._id, status: "pending" });
+  const cart = await getCartByUID(req.user._id);
   const product = await Product.findById(productId);
   if (!product) {
     return next(new AppError("Product not found", 404));
   }
-  if (cart) {
-    const itemIndex = cart.products.findIndex((p) => p.productId == productId);
-    // Check if product exists in cart
-    if (itemIndex > -1) {
-      cart.products[itemIndex].quantity++;
-    } else {
-      cart.products.push({ productId, quantity: 1 });
-    }
-    await cart.save();
-    return res.status(201).json(cart);
+  // Find index of product in cart
+  const itemIndex = cart.products.findIndex((p) => p.productId == productId);
+  // Check if product exists in cart
+  if (itemIndex > -1) {
+    // If exists, increase quantity
+    let quantity = req.body.quantity ? req.body.quantity : 1;
+    cart.products[itemIndex].quantity += quantity;
   } else {
-    // No cart for user, create new cart
-    const newCart = await Cart.create({
-      userId: req.user._id,
-      products: [{ productId, quantity: 1 }],
+    cart.products.push({
+      productId,
+      quantity: req.body.quantity ? req.body.quantity : 1,
     });
-    return res.status(201).json(newCart);
   }
+  await cart.save();
+  return res.status(201).json(cart);
 });
 
 exports.getCart = catchAsync(async (req, res, next) => {
@@ -56,7 +53,7 @@ exports.getCart = catchAsync(async (req, res, next) => {
 
 exports.updateQuantity = catchAsync(async (req, res, next) => {
   const { productId, quantity } = req.body;
-  const cart = await Cart.findOne({ userId: req.user._id, status: "pending" });
+  const cart = await getCartByUID(req.user._id);
   const itemIndex = cart.products.findIndex((p) => p.productId == productId);
   if (itemIndex > -1) {
     if (quantity == 0) {
