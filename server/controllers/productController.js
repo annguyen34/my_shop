@@ -1,7 +1,7 @@
 const Product = require("../models/Product");
 const Category = require("../models/Category");
 const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/AppError");
+const AppError = require("../utils/appError");
 const APIFeatures = require("../utils/apiFeatures");
 const Inventory = require("../models/Inventory");
 

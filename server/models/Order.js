@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Coupon = require("./Coupon");
 const Cart = require("./Cart");
 
-const invoiceSchema = new mongoose.Schema({
+const orderSchema = new mongoose.Schema({
   status: {
     type: String,
     default: "unpaid",
@@ -23,7 +23,7 @@ const invoiceSchema = new mongoose.Schema({
   },
 });
 
-invoiceSchema.pre("save", async function (next) {
+orderSchema.pre("save", async function (next) {
   // Calculate total money using coupon
   try {
     const cart = await Cart.findById(this.cart);
@@ -40,5 +40,5 @@ invoiceSchema.pre("save", async function (next) {
   }
 });
 
-const Invoice = mongoose.model("Invoice", invoiceSchema);
-module.exports = Invoice;
+const Order = mongoose.model("Order", orderSchema);
+module.exports = Order;
