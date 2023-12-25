@@ -15,10 +15,6 @@ exports.getAllCategories = catchAsync(async (req, res, next) => {
 
 // Create category
 exports.createCategory = catchAsync(async (req, res, next) => {
-  const categoryCheck = await Category.findOne({ name: req.body.name });
-  if (categoryCheck) {
-    return next(new AppError("Category already exists", 400));
-  }
   const category = await Category.create(req.body);
   res.status(201).json({
     status: "success",

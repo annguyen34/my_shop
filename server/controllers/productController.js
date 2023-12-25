@@ -1,7 +1,7 @@
 const Product = require("../models/Product");
 const Category = require("../models/Category");
 const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/appError");
+const AppError = require("../utils/AppError");
 const APIFeatures = require("../utils/apiFeatures");
 const Inventory = require("../models/Inventory");
 
@@ -64,7 +64,11 @@ exports.createProduct = catchAsync(async (req, res, next) => {
 
   req.body.category = category._id;
   const product = await Product.create(req.body);
-  await Inventory.create({ product: product._id, quantity: 0 });
+
+  await Inventory.create({
+    product: product._id,
+    quantity: req.body.quantity ? req.body.quantity : 0,
+  });
   res.status(201).json({
     status: "success",
     data: {
