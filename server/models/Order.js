@@ -1,53 +1,44 @@
 const mongoose = require("mongoose");
-const Product = require("./Product");
+const Coupon = require("./Coupon");
+const Cart = require("./Cart");
 
-const orderSchema = new mongoose.Schema(
-  {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
-    products: [
-      {
-        productId: {
-          type: Schema.Types.ObjectId,
-          ref: "Product",
-        },
-        quantity: Number,
-        status: {
-          type: Boolean,
-          default: true,
-        },
-      },
-    ],
-    totalMoney: {
-      type: Number,
-      default: 0,
-    },
-    status: {
-      type: String,
-      default: "pending",
-      enum: ["pending", "served", "cancelled"],
-    },
+const invoiceSchema = new mongoose.Schema({
+  status: {
+    type: String,
+    default: "unpaid",
+    enum: ["unpaid", "paid"],
   },
-  {
-    timestamps: true,
-  }
-);
+  cart: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Cart",
+  },
+  couponUsed: {
+    type: Schema.Types.ObjectId,
+    default: null,
+    ref: "Coupon",
+  },
+  totalMoney: {
+    type: Number,
+    default: 0,
+  },
+});
 
-orderSchema.pre("save", async function (next) {
+invoiceSchema.pre("save", async function (next) {
+  // Calculate total money using coupon
   try {
-    let totalMoney = 0;
-    for (let i = 0; i < this.products.length; i++) {
-      const product = await Product.findById(this.products[i].productId);
-      totalMoney += product.price * this.products[i].quantity;
-    }
-    this.totalMoney = totalMoney;
+    const cart = await Cart.findById(this.cart);
+    const coupon = await Coupon.findById(this.couponUsed);
+    if (coupon) {
+      this.totalMoney =
+        cart.totalMoney - (coupon.discountValue * cart.totalMoney) / 100;
+      coupon.timeUsed += 1;
+      await coupon.save();
+    } else this.totalMoney = cart.totalMoney;
     next();
   } catch (error) {
     next(error);
   }
 });
 
-const Order = mongoose.model("Order", orderSchema);
-module.exports = Order;
+const Invoice = mongoose.model("Invoice", invoiceSchema);
+module.exports = Invoice;

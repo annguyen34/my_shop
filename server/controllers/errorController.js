@@ -1,4 +1,4 @@
-const AppError = require("../utils/AppError");
+const AppError = require("../utils/appError");
 
 const sendErrorProd = (err, res) => {
   if (err.isOperational) {
