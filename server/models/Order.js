@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema({
     ref: "Cart",
   },
   couponUsed: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     default: null,
     ref: "Coupon",
   },
